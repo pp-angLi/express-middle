@@ -12,7 +12,7 @@ const port = 3000
 // const jsonParser = bodyParser.json()
 // app.use(jsonParser)
 app.all('*', function (req, res, next) {
-  res.header('Access-Control-Allow-Origin', 'http://localhost:3001/');
+  res.header('Access-Control-Allow-Origin', ['http://localhost:3001/', 'http://localhost:8888/']);
   res.header("Access-Control-Allow-Headers", "Content-Type");
   res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
   res.header("Access-Control-Allow-Credentials: true");
@@ -21,7 +21,7 @@ app.all('*', function (req, res, next) {
 })
 
 app.use(cors({
-  origin: 'http://localhost:3001',
+  origin: ['http://localhost:3001', 'http://localhost:8888'],
   methods: ['GET', 'POST'],
   credentials: true
 }));
