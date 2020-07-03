@@ -4,7 +4,12 @@ const https = require('https')
 const mcache = require('memory-cache')
 const qs = require('querystring')
 const mysql = require('mysql')
+const redis = require('redis')
 
+const redisConnection = redis.createClient(6379, 'localhost')
+redisConnection.on('error', (err) => {
+  console.log(err)
+})
 const connection = mysql.createConnection({
   host: "localhost",
   user: "root",
@@ -37,7 +42,7 @@ const cache = (duration) => {
   }
 }
 
-router.get('/test', (req, res, next) => {
+router.get('/test', cache(60), (req, res, next) => {
   connection.query("select * from child_table where age>5", (err, req) => {
     if (err) {
       console.log(err)
@@ -87,5 +92,32 @@ router.get('/test', (req, res, next) => {
 //   });
 //   request.write(postData, 'utf-8');
 // })
+
+
+router.post('/setColor', (req, res, next) => {
+
+  redisConnection.hmset("child", {
+    shelter: '2-person tent',
+    color: req.body.color
+  }, redis.print)
+
+  redisConnection.expire('child', 10); //60秒自动过期
+
+  res.json({
+    message: 'ok'
+  })
+})
+
+router.get('/getColor', (req, res, next) => {
+  redisConnection.hget("child", "color", (err, value) => {
+    if (err) {
+      res.json(err)
+    } else {
+      res.json({
+        message: value
+      })
+    }
+  })
+})
 
 module.exports = router
